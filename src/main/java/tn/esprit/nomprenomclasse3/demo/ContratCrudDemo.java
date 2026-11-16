@@ -17,6 +17,7 @@ import tn.esprit.nomprenomclasse3.repository.IPaiementRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * Programme de demonstration de l'Atelier 3 : CRUD sur le Contrat, cascade et orphanRemoval.
@@ -28,6 +29,8 @@ import java.time.LocalDate;
 public class ContratCrudDemo implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ContratCrudDemo.class);
+    // Sonar java:S8688 : fuseau horaire explicite (LocalDate.now sans argument signale)
+    private static final ZoneId ZONE = ZoneId.of("Africa/Tunis");
 
     private final IContratRepository contratRepository;
     private final IPaiementRepository paiementRepository;
@@ -45,7 +48,7 @@ public class ContratCrudDemo implements CommandLineRunner {
     public void run(String... args) {
         // 1. CREATE : id null -> persist -> INSERT contrat + INSERT des paiements (cascade)
         Contrat contrat = Contrat.builder()
-                .dateSignature(LocalDate.now())
+                .dateSignature(LocalDate.now(ZONE))
                 .montantTotal(new BigDecimal("450.00"))
                 .valide(true)
                 .build();
@@ -90,7 +93,7 @@ public class ContratCrudDemo implements CommandLineRunner {
     private static Paiement paiement(String montant, ModePaiement mode) {
         return Paiement.builder()
                 .montant(new BigDecimal(montant))
-                .datePaiement(LocalDate.now())
+                .datePaiement(LocalDate.now(ZONE))
                 .modePaiement(mode)
                 .build();
     }

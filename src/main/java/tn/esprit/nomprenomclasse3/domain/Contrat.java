@@ -1,5 +1,6 @@
 package tn.esprit.nomprenomclasse3.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,6 +41,9 @@ public class Contrat {
     // Cote inverse : composition, un paiement n'existe pas sans son contrat
     @OneToMany(mappedBy = "contrat", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
+    // Jackson : cote "parent" de la composition, la liste est serialisee et ses elements
+    // recoivent automatiquement la reference vers ce contrat a la lecture du JSON
+    @JsonManagedReference("contrat-paiements")
     @ToString.Exclude
     @Builder.Default
     List<Paiement> paiements = new ArrayList<>();

@@ -1,5 +1,10 @@
 package tn.esprit.nomprenomclasse3.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,39 +22,58 @@ import tn.esprit.nomprenomclasse3.service.IVehiculeService;
 
 import java.util.List;
 
+/**
+ * API REST des véhicules : /api/vehicules (le prefixe /api vient de server.servlet.context-path).
+ * Controleur mince : il depend uniquement de l'interface IVehiculeService, injectee par constructeur.
+ */
 @RestController
 @RequestMapping("/vehicules")
 @RequiredArgsConstructor
-@Tag(name = "VehiculesDhia", description = "Gestion des vehicules AutoLoc")
+@Tag(name = "VehiculesDhia", description = "Gestion des véhicules AutoLoc")
 public class VehiculeController {
 
-    // Le controleur depend de l'interface du service, jamais de son implementation
     private final IVehiculeService vehiculeService;
 
+    @Operation(summary = "Lister les véhicules", description = "Renvoie tous les véhicules (tableau JSON, éventuellement vide).")
+    @ApiResponse(responseCode = "200", description = "Liste des véhicules")
+    @GetMapping
+    public List<Vehicule> findAll() {
+        return vehiculeService.findAll();
+    }
+
+    @Operation(summary = "Consulter un véhicule")
+    @ApiResponse(responseCode = "200", description = "Véhicule trouvé")
+    @ApiResponse(responseCode = "404", description = "Véhicule introuvable", content = @Content(schema = @Schema(implementation = ErreurApi.class)))
+    @GetMapping("/{id}")
+    public Vehicule findById(@Parameter(description = "Identifiant du véhicule") @PathVariable Long id) {
+        return vehiculeService.findById(id);
+    }
+
+    @Operation(summary = "Créer un véhicule", description = "Le corps ne doit pas contenir d'identifiant : il est généré par la base.")
+    @ApiResponse(responseCode = "201", description = "Véhicule créé")
+    @ApiResponse(responseCode = "400", description = "Tarif journalier négatif ou identifiant fourni", content = @Content(schema = @Schema(implementation = ErreurApi.class)))
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Vehicule create(@RequestBody Vehicule vehicule) {
         return vehiculeService.create(vehicule);
     }
 
-    @GetMapping("/{id}")
-    public Vehicule findById(@PathVariable Long id) {
-        return vehiculeService.findById(id);
-    }
-
-    @GetMapping
-    public List<Vehicule> findAll() {
-        return vehiculeService.findAll();
-    }
-
+    @Operation(summary = "Modifier un véhicule", description = "Recopie les attributs modifiables sur le véhicule existant.")
+    @ApiResponse(responseCode = "200", description = "Véhicule modifié")
+    @ApiResponse(responseCode = "404", description = "Véhicule introuvable", content = @Content(schema = @Schema(implementation = ErreurApi.class)))
+    @ApiResponse(responseCode = "400", description = "Tarif journalier négatif", content = @Content(schema = @Schema(implementation = ErreurApi.class)))
     @PutMapping("/{id}")
-    public Vehicule update(@PathVariable Long id, @RequestBody Vehicule vehicule) {
+    public Vehicule update(@Parameter(description = "Identifiant du véhicule") @PathVariable Long id,
+                      @RequestBody Vehicule vehicule) {
         return vehiculeService.update(id, vehicule);
     }
 
+    @Operation(summary = "Supprimer un véhicule")
+    @ApiResponse(responseCode = "204", description = "Véhicule supprimé, réponse sans corps")
+    @ApiResponse(responseCode = "404", description = "Véhicule introuvable", content = @Content(schema = @Schema(implementation = ErreurApi.class)))
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    public void deleteById(@Parameter(description = "Identifiant du véhicule") @PathVariable Long id) {
         vehiculeService.deleteById(id);
     }
 }

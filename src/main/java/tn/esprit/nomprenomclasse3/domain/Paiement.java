@@ -1,5 +1,6 @@
 package tn.esprit.nomprenomclasse3.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -40,6 +41,8 @@ public class Paiement {
 
     // Cote proprietaire (cle etrangere contrat_id_contrat)
     @ManyToOne(fetch = FetchType.LAZY)
+    // Jackson : reference arriere, non serialisee (evite la boucle infinie Contrat -> Paiement -> Contrat)
+    @JsonBackReference("contrat-paiements")
     @ToString.Exclude
     Contrat contrat;
 }
