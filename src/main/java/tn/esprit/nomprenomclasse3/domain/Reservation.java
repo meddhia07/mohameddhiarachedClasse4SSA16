@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +35,12 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     StatutReservation statut;
+
+    // Atelier 7 : la confirmation a besoin du client (notification) et du vehicule (tarif journalier).
+    // @ManyToOne est EAGER par defaut : pas de proxy Hibernate a serialiser en JSON.
+    @ManyToOne
+    Client client;
+
+    @ManyToOne
+    Vehicule vehicule;
 }
